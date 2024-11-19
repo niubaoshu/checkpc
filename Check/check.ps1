@@ -114,13 +114,13 @@ function Remove-Wifi {
     }
 }
 
-function Check_RE {
+function Set-WinRecovery {
     # 检测 ReAgentC 状态
     $reagentcStatus = & reagentc /info
 
     # 检查状态是否为 "Enabled"
     if ($reagentcStatus -match "Windows RE status:\s+Disabled") {
-        Write-Host "Windows RE is Disabled. Enabling it now..."
+        Write-Host "Windows Recovery is Disabled. Enabling it now..." -ForegroundColor Yellow
     
         # 启用 Windows RE
         & reagentc /enable
@@ -129,14 +129,14 @@ function Check_RE {
         $reagentcStatus = & reagentc /info
     
         if ($reagentcStatus -match "Windows RE status:\s+Enabled") {
-            Write-Host "Windows RE has been successfully enabled." -ForegroundColor Green
+            Write-Host "Windows Recovery has been successfully enabled." -ForegroundColor Green
         }
         else {
-            Write-Host "Failed to enable Windows RE."
+            Write-Host "Failed to enable Windows Recovery." -ForegroundColor Red
         }
     }
     else {
-        Write-Host "Windows RE is already Enabled." -ForegroundColor Green
+        Write-Host "Windows Recovery is already Enabled." -ForegroundColor Green
     }
     
 }
@@ -148,7 +148,7 @@ $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 # 获取 CPU 型号和型号名称
 $cpuModel = (wmic cpu get name)[2]
 
-Check_RE
+Set-WinRecovery
 Set-WiFi
 Set-dynamicBrightness
 Get-CPUVersion
