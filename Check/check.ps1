@@ -114,6 +114,33 @@ function Remove-Wifi {
     }
 }
 
+function Check_RE {
+    # 检测 ReAgentC 状态
+    $reagentcStatus = & reagentc /info
+
+    # 检查状态是否为 "Enabled"
+    if ($reagentcStatus -match "Windows RE status:\s+Disabled") {
+        Write-Host "Windows RE is Disabled. Enabling it now..."
+    
+        # 启用 Windows RE
+        & reagentc /enable
+    
+        # 再次检查状态
+        $reagentcStatus = & reagentc /info
+    
+        if ($reagentcStatus -match "Windows RE status:\s+Enabled") {
+            Write-Host "Windows RE has been successfully enabled." -ForegroundColor Green
+        }
+        else {
+            Write-Host "Failed to enable Windows RE."
+        }
+    }
+    else {
+        Write-Host "Windows RE is already Enabled." -ForegroundColor Green
+    }
+    
+}
+
 $scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 . $scriptDirectory\activate.ps1
 $parentDirectory = Split-Path -Path $scriptDirectory -Parent
@@ -121,6 +148,7 @@ $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 # 获取 CPU 型号和型号名称
 $cpuModel = (wmic cpu get name)[2]
 
+Check_RE
 Set-WiFi
 Set-dynamicBrightness
 Get-CPUVersion
