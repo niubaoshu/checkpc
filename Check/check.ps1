@@ -27,6 +27,26 @@ function Get-DiskInfo {
     
 }
 
+function Get-Date {
+    $cDate = Get-Date -Format "yyyy-MM-dd"
+    if ($cDate -ne $currentDate) {
+        if (Confirm-Continue -Message "Notify the maintainer of major problems with the program" -ForegroundColor "Red") {
+            if (Test-Path $configFilePath) {
+                $fileContent = Get-Content -Path $configFilePath
+                if ($fileContent.Length -eq 0) {
+                    return $false
+                }
+                $lastLine = $fileContent[-1]
+                if ($lastLine -match "^\d{4}-\d{2}-\d{2}$") {
+                    $fileContent[-1] = "`$currentDate = `"" + $currentDate + "`""
+                    Set-Content -Path $configFilePath -Value $fileContent
+                    return $true
+                }
+            }
+        }
+    }
+}
+
 function Get-DeviceInfo {
     # 使用 Get-CimInstance 获取设备驱动信息
     $devices = Get-CimInstance -ClassName Win32_PnPEntity
@@ -145,9 +165,11 @@ $scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 . $scriptDirectory\activate.ps1
 $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 . $parentDirectory\check_config.ps1
+$configFilePath = $parentDirectory + "\check_config.ps1"
 # 获取 CPU 型号和型号名称
 $cpuModel = (wmic cpu get name)[2]
 
+Get-Date
 Set-WinRecovery
 Set-WiFi
 Set-dynamicBrightness
