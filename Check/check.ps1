@@ -27,7 +27,7 @@ function Get-DiskInfo {
     
 }
 
-function Get-Date {
+function Get-Date2 {
     $cDate = Get-Date -Format "yyyy-MM-dd"
     if ($cDate -ne $currentDate) {
         if (Confirm-Continue -Message "Notify the maintainer of major problems with the program" -ForegroundColor "Red") {
@@ -61,11 +61,12 @@ function Get-DeviceInfo {
     }
     $length = $devices.Count
     if ($devicesNotOKCount -gt 0) {
+        C:\Windows\System32\devmgmt.msc
         Confirm-Continue
         Get-DeviceInfo
     }
     else {
-        Write-Host "We have identified $length normal devices and $devicesNotOKCount abnormal devices."
+        Write-Host "We have identified $length normal devices and $devicesNotOKCount abnormal devices." -ForegroundColor Green
     }
 }
 
@@ -180,7 +181,7 @@ Get-PCSerialNumber
 Get-Memory
 Get-DiskInfo
 Get-DeviceInfo
-$r = Start-Activation
+#$r = Start-Activation
 slui.exe
 if ($r) {
     Remove-Wifi
