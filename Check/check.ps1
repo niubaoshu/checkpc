@@ -169,7 +169,7 @@ $configFilePath = $parentDirectory + "\check_config.ps1"
 # 获取 CPU 型号和型号名称
 $cpuModel = (wmic cpu get name)[2]
 
-Get-Date
+#Get-Date
 Set-WinRecovery
 Set-WiFi
 Set-dynamicBrightness
