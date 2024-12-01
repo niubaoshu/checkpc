@@ -181,7 +181,7 @@ Get-PCSerialNumber
 Get-Memory
 Get-DiskInfo
 Get-DeviceInfo
-#$r = Start-Activation
+$r = Start-Activation
 slui.exe
 if ($r) {
     Remove-Wifi
