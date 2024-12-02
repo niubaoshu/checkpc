@@ -56,6 +56,7 @@ function Start-Activation {
     $computerSN = (Get-WmiObject -Class Win32_BIOS).SerialNumber 
     $keyFileName = Get-KeyFileName -osVersion $osVersion
     $ks = [Keys]::new($keyFileName, $GetKeyByServer)
+    $secondKey = $false
     :activate while (-not $(Get-activationStatus)) {
         if ($IsChangeKeys) {
             $kr = $ks.GetNextKey($userName, $pd, $index, $osVersion, $computerSN, $result) -split ","
@@ -67,6 +68,10 @@ function Start-Activation {
             }
             Write-Host "get key:", $key, "at ", $index, " line in ", $keyFileName -ForegroundColor Green
             changepk.exe /ProductKey $key -ErrorAction Stop
+            if ($secondKey){
+                Start-Sleep -Seconds 5
+            }
+            $secondKey = $true
         }
         :retry while ($true) {
             $result = (cscript.exe //nologo C:\WINDOWS\system32\slmgr.vbs /ato) -Join ""
