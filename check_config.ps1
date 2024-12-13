@@ -1,4 +1,4 @@
-$ProKeysFileName = $parentDirectory + "\keys.txt"
+$ProKeysFileName = $parentDirectory + "\keys_pro.txt"
 $HomeKeysFileName = $parentDirectory + "\keys.txt"
 $GetKeyByServer = $false
 $IsChangeKeys = $true
