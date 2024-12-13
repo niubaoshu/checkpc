@@ -11,7 +11,7 @@ function Get-Memory {
         Write-Host "memery Solt : $slotLocation,`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
     }
 }
-function Get-DiskInfo {
+function Get-PartitionInfo {
     # 使用 Get-CimInstance 获取磁盘分区信息
     $partitions = Get-CimInstance -ClassName Win32_LogicalDisk
 
@@ -25,6 +25,19 @@ function Get-DiskInfo {
         Write-Host "Partition: $partitionName`tSize $partitionSizeGB GB,`tUsedSpace $usedSpaceGB GB,`tFreeSpace $freeSpaceGB GB;"  -ForegroundColor Green
     }  
     
+}
+function Get-DiskInfo {
+    # 获取所有物理磁盘
+    $disks = Get-CimInstance -ClassName Win32_DiskDrive
+    foreach ($disk in $disks) {
+        $sizeGB = [math]::Round($disk.Size / 1GB, 2)
+        if ($disk.Status -eq "OK") {
+            Write-Host "$($disk.Name): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Green
+        }
+        else {
+            Write-Host "$($disk.Name): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Red
+        }
+    }
 }
 
 function Get-Date2 {
@@ -71,12 +84,16 @@ function Get-DeviceInfo {
 }
 
 function Set-WiFi {
+    $wifiInfo = netsh wlan show interfaces
+    $adapterName = ($wifiInfo | Select-String "Name" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
+
+
     # 定义Wi-Fi网络的名称和密码
 
     # 使用netsh命令连接到Wi-Fi网络
-    $WIFIprofile = $scriptDirectory + "\top_prime_inc_profile.xml" 
-    netsh wlan add profile filename=$WIFIprofile interface="Wi-Fi"
-    netsh wlan connect name=$ssid ssid=$ssid interface="Wi-Fi"
+    $WIFIprofile = $parentDirectory + "\top_prime_inc_profile.xml" 
+    netsh wlan add profile filename=$WIFIprofile interface=$adapterName
+    netsh wlan connect name=$ssid ssid=$ssid interface=$adapterName
 
     # 删除临时配置文件
     # Remove-Item "top_prime_inc_profile.xml"
@@ -162,6 +179,28 @@ function Set-WinRecovery {
     
 }
 
+function Get-SignalStrength {
+    # 获取 Wi-Fi 接口的详细信息
+    $wifiInfo = netsh wlan show interfaces
+
+    # 提取信号强度（百分比）
+    $signalStrengthPercentage = ($wifiInfo | Select-String "Signal" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
+
+    # 提取连接名称 (SSID)
+    $connectionName = ($wifiInfo | Select-String "SSID" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
+
+    # 提取适配器名称
+    $adapterName = ($wifiInfo | Select-String "Name" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
+
+    # 输出信息
+    if ($signalStrengthPercentage -le "50%") {
+        Write-Host "Adapter Name: $adapterName,SSID: $connectionName, Signal Strength: $signalStrengthPercentage" -ForegroundColor Red
+    }
+    else {
+        Write-Host "Adapter Name: $adapterName,SSID: $connectionName, Signal Strength: $signalStrengthPercentage" -ForegroundColor Green
+    }
+}
+
 $scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 . $scriptDirectory\activate.ps1
 $parentDirectory = Split-Path -Path $scriptDirectory -Parent
@@ -180,7 +219,9 @@ Get-WindowsVersion
 Get-PCSerialNumber
 Get-Memory
 Get-DiskInfo
+Get-PartitionInfo
 Get-DeviceInfo
+Get-SignalStrength
 $r = Start-Activation
 slui.exe
 if ($r) {
