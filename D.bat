@@ -1,0 +1,1 @@
+powershell -ExecutionPolicy Bypass -File "%~dp0Check\check.ps1"
