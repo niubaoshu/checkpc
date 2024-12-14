@@ -11,8 +11,8 @@ function AutoUpdate {
         $latestVersion = $releaseInfo.tag_name
         $outputPath = $parentDirectory + "\checkpc_${latestVersion}.zip"
         $extractPath = $parentDirectory + "\checkpc_${latestVersion}"
-        Write-Host $latestVersion $Version
         if ($latestVersion -ne $Version) {
+            Write-Host "current version: $Version,latest version: $latestVersion,updating ..." -ForegroundColor Yellow
             Invoke-WebRequest -Uri $releaseInfo.zipball_url -OutFile $outputPath
             if (Test-Path -Path $outputPath) {
                 Expand-Archive -Path $outputPath -DestinationPath $extractPath
@@ -31,6 +31,9 @@ function AutoUpdate {
                 Set-Content -Path $configFilePath -Value $fileContent
                 $updated = $true
             }
+        }
+        else {
+            Write-Host "current version: $Version,latest version: $latestVersion" -ForegroundColor Green
         }
     }
     catch {

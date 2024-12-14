@@ -3,12 +3,13 @@ function Get-Memory {
     $memorySlots = Get-WmiObject -Class Win32_PhysicalMemory
 
     # 遍历每个内存插槽并输出其信息
+    $id = 0
     foreach ($slot in $memorySlots) {
-        $slotLocation = $slot.DeviceLocator
         $slotCapacityGB = [math]::Round($slot.Capacity / 1GB, 2)
         $slotSpeed = $slot.Speed
         $slotManufacturer = $slot.Manufacturer
-        Write-Host "memery Solt : $slotLocation,`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
+        Write-Host "memery$id`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
+        $id = $id + 1
     }
 }
 function Get-PartitionInfo {
@@ -27,16 +28,17 @@ function Get-PartitionInfo {
     
 }
 function Get-DiskInfo {
-    # 获取所有物理磁盘
     $disks = Get-CimInstance -ClassName Win32_DiskDrive
+    $id = 0
     foreach ($disk in $disks) {
         $sizeGB = [math]::Round($disk.Size / 1GB, 2)
         if ($disk.Status -eq "OK") {
-            Write-Host "$($disk.Name): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Green
+            Write-Host "disk$($id): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Green
         }
         else {
-            Write-Host "$($disk.Name): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Red
+            Write-Host "disk$($id): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Red
         }
+        $id = $id + 1
     }
 }
 
