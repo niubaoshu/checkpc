@@ -1,4 +1,4 @@
-function AutoUpdate {
+function Get-LastVersion {
     $owner = "niubaoshu"  
     $repo = "checkpc"    
 

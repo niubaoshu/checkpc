@@ -208,7 +208,6 @@ $cpuModel = (wmic cpu get name)[2]
 
 #Get-Date
 Set-WiFi
-AutoUpdate
 Set-WinRecovery
 Set-dynamicBrightness
 Get-CPUVersion
@@ -220,6 +219,7 @@ Get-DiskInfo
 Get-PartitionInfo
 Get-DeviceInfo
 Get-SignalStrength
+Get-LastVersion
 $r = Start-Activation
 slui.exe
 if ($r) {
