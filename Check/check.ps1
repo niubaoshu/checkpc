@@ -203,6 +203,7 @@ function Get-SignalStrength {
 
 $scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 . $scriptDirectory\activate.ps1
+. $scriptDirectory\update.ps1
 $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 . $parentDirectory\check_config.ps1
 $configFilePath = $parentDirectory + "\check_config.ps1"
@@ -210,8 +211,9 @@ $configFilePath = $parentDirectory + "\check_config.ps1"
 $cpuModel = (wmic cpu get name)[2]
 
 #Get-Date
-Set-WinRecovery
 Set-WiFi
+AutoUpdate
+Set-WinRecovery
 Set-dynamicBrightness
 Get-CPUVersion
 Get-Model
