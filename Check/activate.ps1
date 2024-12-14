@@ -49,7 +49,7 @@ function Start-Activation {
     $osVersion = (Get-WmiObject -Class Win32_OperatingSystem).Caption
     $computerSN = (Get-WmiObject -Class Win32_BIOS).SerialNumber 
     $keyFileName = Get-KeyFileName -osVersion $osVersion
-    $ks = [Keys]::new($keyFileName, $GetKeyByServer)
+    $ks = [Keys]::new($keyFileName, $GetKeyByServer, $parentDirectory)
     $secondKey = $false
     :activate while (-not $(Get-activationStatus)) {
         if ($IsChangeKeys) {
@@ -123,10 +123,12 @@ class Keys {
     [string[]]$Lines
     [int]$index
     [bool]$getKeyByServer
-    Keys([string]$FileName, [bool]$getKeyByServer) {
+    [string]$parentDirectory
+    Keys([string]$FileName, [bool]$getKeyByServer, [string]$parentDirectory) {
         $this.FileName = $FileName
         $this.Lines = (Get-Content -Path $FileName).Trim() -split "`n"
         $this.getKeyByServer = $getKeyByServer
+        $this.parentDirectory = $parentDirectory
     }
     [string] GetNextKey ([string]$userName, [string]$pd, [int]$index, [string]$osVersion, [string]$ComputerSN, [string]$result , [bool]$successed) {
         if ($this.getKeyByServer) {
@@ -138,7 +140,11 @@ class Keys {
                 $this.Lines[$index] = $this.Lines[$index].Trim() + "`t`t" + $result.Trim() + "`t`t" + $ComputerSN
                 $this.WriteKeyFile()
                 if (($index -ne -1) -and (-not $successed)) {
-                    $badKeyFileName = "BadKeys.txt"
+                    $badKeyFileName = $this.parentDirectory + "\BadKeys.txt"
+                    Add-Content -Path $badKeyFileName -Value $this.Lines[$index]
+                }
+                if ($successed) {
+                    $badKeyFileName = $this.parentDirectory + "\fineKeys.txt"
                     Add-Content -Path $badKeyFileName -Value $this.Lines[$index]
                 }
             }

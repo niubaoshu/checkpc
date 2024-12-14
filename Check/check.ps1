@@ -206,6 +206,13 @@ $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 $configFilePath = $parentDirectory + "\check_config.ps1"
 $cpuModel = (wmic cpu get name)[2]
 
+if ($args[0] -eq "update") {
+    Set-WiFi
+    Start-Sleep -Seconds 2
+    Get-LastVersion
+    Exit
+}
+
 #Get-Date
 Set-WiFi
 Set-WinRecovery
@@ -219,7 +226,7 @@ Get-DiskInfo
 Get-PartitionInfo
 Get-DeviceInfo
 Get-SignalStrength
-Get-LastVersion
+#Get-LastVersion
 $r = Start-Activation
 slui.exe
 if ($r) {
