@@ -180,19 +180,14 @@ function Set-WinRecovery {
 }
 
 function Get-SignalStrength {
-    # 获取 Wi-Fi 接口的详细信息
     $wifiInfo = netsh wlan show interfaces
 
-    # 提取信号强度（百分比）
     $signalStrengthPercentage = ($wifiInfo | Select-String "Signal" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
 
-    # 提取连接名称 (SSID)
     $connectionName = ($wifiInfo | Select-String "SSID" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
 
-    # 提取适配器名称
     $adapterName = ($wifiInfo | Select-String "Name" | ForEach-Object { $_ -replace ".*: ", "" }).Trim()
 
-    # 输出信息
     if ($signalStrengthPercentage -le "50%") {
         Write-Host "Adapter Name: $adapterName,SSID: $connectionName, Signal Strength: $signalStrengthPercentage" -ForegroundColor Red
     }
@@ -207,7 +202,6 @@ $scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 $parentDirectory = Split-Path -Path $scriptDirectory -Parent
 . $parentDirectory\check_config.ps1
 $configFilePath = $parentDirectory + "\check_config.ps1"
-# 获取 CPU 型号和型号名称
 $cpuModel = (wmic cpu get name)[2]
 
 #Get-Date

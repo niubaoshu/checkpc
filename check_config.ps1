@@ -8,4 +8,4 @@ $ssid = "Top Prime Inc."
 $password = "12345789"
 $removeWIFI = $false
 $currentDate = "2024-11-21"
-$Version = "v0.0.2-alpha"
+$Version = "v0.0.3-alpha"

@@ -8,29 +8,23 @@ function Get-KeyByServer {
         $result
     )
 
-    # 定义服务器地址和端口
     $server = "127.0.0.1"
     $port = 12345
 
-    # 创建 TCP 客户端
     $client = New-Object System.Net.Sockets.TcpClient($server, $port)
 
-    # 获取网络流
     $stream = $client.GetStream()
     $writer = New-Object System.IO.StreamWriter($stream)
     $reader = New-Object System.IO.StreamReader($stream)
     $writer.AutoFlush = $true
 
-    # 发送数据
     $message = "$userName,$pd,$index,$osVersion,$computerSN"
     $writer.WriteLine($message)
     Write-Host "send data:$message"
 
-    # 读取响应数据
     $response = $reader.ReadLine()
     Write-Host "recived data:$response"
 
-    # 关闭连接
     $writer.Close()
     $reader.Close()
     $client.Close()
@@ -68,7 +62,7 @@ function Start-Activation {
             }
             Write-Host "get key:", $key, "at ", $index, " line in ", $keyFileName -ForegroundColor Green
             changepk.exe /ProductKey $key -ErrorAction Stop
-            if ($secondKey){
+            if ($secondKey) {
                 Start-Sleep -Seconds 5
             }
             $secondKey = $true
@@ -183,11 +177,9 @@ function Confirm-Continue {
     )
     $Message = $Message + " (Press 'yes' or 'y' to continue, any other key to cancel)."
 
-    # 显示提示信息并读取用户输入
     Write-Host $Message -ForegroundColor $ForegroundColor 
     $userInput = Read-Host
 
-    # 检查用户输入是否为 "yes" 或 "y"
     if ($userInput -eq "yes" -or $userInput -eq "y") {
         return $true
     }
