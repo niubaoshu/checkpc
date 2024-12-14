@@ -8,7 +8,7 @@ function Get-Memory {
         $slotCapacityGB = [math]::Round($slot.Capacity / 1GB, 2)
         $slotSpeed = $slot.Speed
         $slotManufacturer = $slot.Manufacturer
-        Write-Host "memery$id`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
+        Write-Host "memery${id}:`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
         $id = $id + 1
     }
 }
