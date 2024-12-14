@@ -83,6 +83,10 @@ function Start-Activation {
                     Write-Host $key "is blocked,we will try next keys" -ForegroundColor Red
                     break retry
                 }
+                "*To help protect your Online Id account you must signin again.*" {
+                    Write-Host "&" -NoNewline -ForegroundColor Green
+                    continue retry
+                }
                 "*The Software Licensing Service reported that the product key is not available*" {
                     Write-Host "!" -NoNewline -ForegroundColor Green
                     continue retry
