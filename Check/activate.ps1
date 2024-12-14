@@ -53,7 +53,7 @@ function Start-Activation {
     $secondKey = $false
     :activate while (-not $(Get-activationStatus)) {
         if ($IsChangeKeys) {
-            $kr = $ks.GetNextKey($userName, $pd, $index, $osVersion, $computerSN, $result) -split ","
+            $kr = $ks.GetNextKey($userName, $pd, $index, $osVersion, $computerSN, $result, $false) -split ","
             $index = $kr[0]
             $key = $kr[1]
             if ($index -eq -2) {
@@ -71,7 +71,7 @@ function Start-Activation {
             $result = (cscript.exe //nologo C:\WINDOWS\system32\slmgr.vbs /ato) -Join ""
             switch -Wildcard ($result) {
                 "*Product activated successfully.*" { 
-                    $ks.GetNextKey($userName, $pd, $index, $osVersion, $computerSN, $result)
+                    $ks.GetNextKey($userName, $pd, $index, $osVersion, $computerSN, $result, $true)
                     Write-Host $result -ForegroundColor Green
                     break activate 
                 }
@@ -128,7 +128,7 @@ class Keys {
         $this.Lines = (Get-Content -Path $FileName).Trim() -split "`n"
         $this.getKeyByServer = $getKeyByServer
     }
-    [string] GetNextKey ([string]$userName, [string]$pd, [int]$index, [string]$osVersion, [string]$ComputerSN, [string]$result ) {
+    [string] GetNextKey ([string]$userName, [string]$pd, [int]$index, [string]$osVersion, [string]$ComputerSN, [string]$result , [bool]$successed) {
         if ($this.getKeyByServer) {
             $result = Get-KeyByServer -userName $userName -pd $pd -index $index -osVersion $osVersion -ComputerSN $ComputerSN    
             return $result
@@ -137,6 +137,10 @@ class Keys {
             if ($index -ge 0) {
                 $this.Lines[$index] = $this.Lines[$index].Trim() + "`t`t" + $result.Trim() + "`t`t" + $ComputerSN
                 $this.WriteKeyFile()
+                if (($index -ne -1) -and (-not $successed)) {
+                    $badKeyFileName = "BadKeys.txt"
+                    Add-Content -Path $badKeyFileName -Value $this.Lines[$index]
+                }
             }
             for ($ri = $index + 1; $ri -lt $this.Lines.Count; $ri = $ri + 1) {
                 $line = $this.Lines[$ri]
