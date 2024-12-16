@@ -4,33 +4,44 @@ function Get-Memory {
 
     # 遍历每个内存插槽并输出其信息
     $id = 0
+    $totalMemory = 0
     foreach ($slot in $memorySlots) {
+        $totalMemory = $totalMemory + $slot.Capacity
         $slotCapacityGB = [math]::Round($slot.Capacity / 1GB, 2)
         $slotSpeed = $slot.Speed
         $slotManufacturer = $slot.Manufacturer
         Write-Host "memery${id}:`t Capacity $slotCapacityGB GB,`tSpeed $slotSpeed MHz,`tManufacturer $slotManufacturer;"  -ForegroundColor Green
         $id = $id + 1
     }
+    return [math]::Round($totalMemory / 1GB, 0).ToString() + "GB"
 }
 function Get-PartitionInfo {
     # 使用 Get-CimInstance 获取磁盘分区信息
     $partitions = Get-CimInstance -ClassName Win32_LogicalDisk
 
+    $totalPartitions = 0
     # 遍历每个分区并输出其大小
     foreach ($partition in $partitions) {
+        if ($partition.DriveType -eq 3) {
+            $totalPartitions = $totalPartitions + $partition.Size
+        }
         $partitionName = $partition.DeviceID
         $partitionSizeGB = [math]::Round($partition.Size / 1GB, 2)
         $freeSpaceGB = [math]::Round($partition.FreeSpace / 1GB, 2)
         $usedSpaceGB = $partitionSizeGB - $freeSpaceGB
 
         Write-Host "Partition: $partitionName`tSize $partitionSizeGB GB,`tUsedSpace $usedSpaceGB GB,`tFreeSpace $freeSpaceGB GB;"  -ForegroundColor Green
-    }  
-    
+    }
+    return [math]::Round($totalPartitions / 1GB, 0).ToString() + "GB"
 }
 function Get-DiskInfo {
     $disks = Get-CimInstance -ClassName Win32_DiskDrive
     $id = 0
+    $totalDisk = 0
     foreach ($disk in $disks) {
+        if ($disk.MediaType -eq "Fixed hard disk media") {
+            $totalDisk = $totalDisk + $disk.Size 
+        }
         $sizeGB = [math]::Round($disk.Size / 1GB, 2)
         if ($disk.Status -eq "OK") {
             Write-Host "disk$($id): Total Size: $sizeGB GB,Disk mode: $($disk.Model),Interface Type: $($disk.InterfaceType)" -ForegroundColor Green
@@ -40,6 +51,7 @@ function Get-DiskInfo {
         }
         $id = $id + 1
     }
+    return [math]::Round($totalDisk / 1GB, 0).ToString() + "GB"
 }
 
 function Get-Date2 {
@@ -79,9 +91,11 @@ function Get-DeviceInfo {
         C:\Windows\System32\devmgmt.msc
         Confirm-Continue
         Get-DeviceInfo
+        reutrn $false
     }
     else {
         Write-Host "We have identified $length normal devices and $devicesNotOKCount abnormal devices." -ForegroundColor Green
+        return $true
     }
 }
 
@@ -106,12 +120,18 @@ function Get-WindowsVersion {
     Write-Host "Os Display version:", $osVersion.DisplayVersion
     $Caption = Get-WmiObject -Class Win32_OperatingSystem
     Write-Host "Os version:", $Caption.Caption
+    return $Caption.Caption
 }
 
 function Get-PCSerialNumber {
     $bios = Get-WmiObject -Class Win32_BIOS
     Write-Host "SN:", $bios.SerialNumber
+    return $bios.SerialNumber
+}
+function Get-BIOSVersion {
+    $bios = Get-WmiObject -Class Win32_BIOS
     Write-Host "BIOS Version:", $bios.SMBIOSBIOSVersion
+    return $bios.SMBIOSBIOSVersion
 }
 
 function Get-CPUVersion {
@@ -125,7 +145,7 @@ function Get-Model {
     $computerSystem = Get-WmiObject -Class Win32_ComputerSystem
 
     Write-Host "model:", $computerSystem.Model
-    
+    return $computerSystem.Model
 }
 
 function Set-dynamicBrightness {
@@ -196,42 +216,5 @@ function Get-SignalStrength {
     else {
         Write-Host "Adapter Name: $adapterName,SSID: $connectionName, Signal Strength: $signalStrengthPercentage" -ForegroundColor Green
     }
-}
-
-$scriptDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-. $scriptDirectory\activate.ps1
-. $scriptDirectory\update.ps1
-$parentDirectory = Split-Path -Path $scriptDirectory -Parent
-. $parentDirectory\check_config.ps1
-$configFilePath = $parentDirectory + "\check_config.ps1"
-$cpuModel = (wmic cpu get name)[2]
-
-if ($args[0] -eq "update") {
-    Set-WiFi
-    Start-Sleep -Seconds 2
-    Get-LastVersion
-    Exit
-}
-
-#Get-Date
-Set-WiFi
-Set-WinRecovery
-Set-dynamicBrightness
-Get-CPUVersion
-Get-Model
-Get-WindowsVersion
-Get-PCSerialNumber
-Get-Memory
-Get-DiskInfo
-Get-PartitionInfo
-Get-DeviceInfo
-Get-SignalStrength
-#Get-LastVersion
-$r = Start-Activation
-slui.exe
-if ($r) {
-    Remove-Wifi
-    if (Confirm-Continue -Message "all things are done, do you want to shutdown this computer?") {
-        shutdown /p
-    }
+    return $signalStrengthPercentage
 }
