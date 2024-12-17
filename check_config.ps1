@@ -11,4 +11,4 @@ $password = "12345789"
 #$removeWIFI = $true
 $removeWIFI = $false
 $currentDate = "2024-11-21"
-$Version = "v0.0.8-alpha"
+$Version = "v0.0.10-alpha"
