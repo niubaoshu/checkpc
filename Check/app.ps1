@@ -53,7 +53,7 @@ $screenHeight = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Computer Check"
 $form.TopMost = $true
-$form.Size = New-Object System.Drawing.Size(700, 1000)
+$form.Size = New-Object System.Drawing.Size(700, 900)
 $form.StartPosition = "Manual"  #   
 # 禁用最小化按钮
 $form.MinimizeBox = $false
@@ -77,12 +77,12 @@ $formWidth = $form.Width
 $formHeight = $form.Height
 # 创建一个 Panel 对象
 $panel = New-Object System.Windows.Forms.Panel
-$panel.Size = New-Object System.Drawing.Size(700, 900)  # Panel 的大小
+$panel.Size = New-Object System.Drawing.Size(700, 700)  # Panel 的大小
 $panel.BackColor = [System.Drawing.Color]::LightGray  # Panel 的背景颜色
 
 # 定义列数和每列的标签数量
 $columns = 2
-$labelsPerColumn = 8
+$labelsPerColumn = 5
 
 # 获取窗体的宽度和高度
 $panelWidth = $panel.ClientSize.Width
@@ -91,15 +91,21 @@ $panelHeight = $panel.ClientSize.Height
 # 计算每个标签的宽度和高度
 $labelWidth = $panelWidth / $columns
 $labelHeight = $panelHeight / $labelsPerColumn
+$osv = ""
 
+if ($osVersion.Contains("Pro")) {
+    $osv = "Pro"
+}
+if ($osVersion.Contains("Home")) {
+    $osv = "Home"
+}
+
+Write-Host $osv
 # 定义 labelTexts 数组
 $labelTexts = @(
     "Memory", $totalMemory,
     "Disk", $totalDisk,
-    "Partition", $totalPartitions,
-    "CPU", $cpuModel,
-    "Model", $model,
-    "OS", $osVersion,
+    "OS", $osv,
     "Serial", $serialNumber,
     "Signal", $signalStrength
 )
@@ -146,8 +152,8 @@ for ($row = 0; $row -lt $rowsNeeded; $row++) {
 
                 # 计算合适的字体大小
                 $fontSize = [Math]::Min(
-                    $sender.Width / $textLength * 1.5, # 根据宽度计算字体大小
-                    $sender.Height / 1.5                # 根据高度计算字体大小
+                    [int] ($sender.Width / $textLength * 1.5), # 根据宽度计算字体大小
+                    [int] ($sender.Height / 1.5 )              # 根据高度计算字体大小
                 )
 
                 # 设置新的字体大小
