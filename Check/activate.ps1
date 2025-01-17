@@ -183,21 +183,3 @@ function Get-KeyFileName {
 # Start-Activation
 # $r = Get-KeyByFile -fileName $HomeKeysFileName
 
-
-function Confirm-Continue {
-    param (
-        [string]$Message = "There may be issues that need to be addressed. Do you want to continue?",
-        [string]$ForegroundColor = "Yellow"
-    )
-    $Message = $Message + " (Press 'yes' or 'y' to continue, any other key to cancel)."
-
-    Write-Host $Message -ForegroundColor $ForegroundColor 
-    $userInput = Read-Host
-
-    if ($userInput -eq "yes" -or $userInput -eq "y") {
-        return $true
-    }
-    else {
-        return $false
-    }
-}

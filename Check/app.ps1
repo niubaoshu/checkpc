@@ -6,6 +6,7 @@ $configFilePath = $parentDirectory + "\check_config.ps1"
 . $scriptDirectory\check.ps1
 . $scriptDirectory\activate.ps1
 . $scriptDirectory\update.ps1
+. $scriptDirectory\utils.ps1
 . $parentDirectory\check_config.ps1
 
 if ($args[0] -eq "update") {
