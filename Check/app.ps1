@@ -16,12 +16,17 @@ if ($args[0] -eq "update") {
     Exit
 }
 
+$osVersion = Get-WindowsVersion
+$serialNumber = Get-PCSerialNumber
+$model = Get-Model
+
+Get-KeyByServer -userName $userName -osVersion  $osVersion -sn $serialNumber -model $model
+Exit
+
+
 Set-WiFi
 Set-WinRecovery
 Set-dynamicBrightness
-$model = Get-Model
-$osVersion = Get-WindowsVersion
-$serialNumber = Get-PCSerialNumber
 $totalMemory = Get-Memory
 $totalDisk = Get-DiskInfo
 $totalPartitions = Get-PartitionInfo

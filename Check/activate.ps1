@@ -1,34 +1,39 @@
 function Get-KeyByServer {
     param(
         $userName,
-        $pw,
-        [int]$index,
         $osVersion,
-        $computerSN,
-        $result
+        $sn,
+        $model
     )
+    $path = "/openapi/oskey/take"
+    $url = $keyServerAdrr + $path
+    $body = @{
+        sn        = $sn
+        model     = $model
+        osVersion = $osVersion
+        userName  = $userName
+    } | ConvertTo-Json
+    $randStr = Get-RandomString(20)
 
-    $server = "127.0.0.1"
-    $port = 12345
+    $headers = @{
+        "Content-Type" = "application/json"
+        "appId"        = $appId
+        "appSecret"    = $appSecret
+        "timeStamp"    = Get-timeStamp
+        "sign"         = Get-SignalStrength -appId $appId -appSecret $appSecret -randString $randStr
+    }
 
-    $client = New-Object System.Net.Sockets.TcpClient($server, $port)
-
-    $stream = $client.GetStream()
-    $writer = New-Object System.IO.StreamWriter($stream)
-    $reader = New-Object System.IO.StreamReader($stream)
-    $writer.AutoFlush = $true
-
-    $message = "$userName,$pd,$index,$osVersion,$computerSN"
-    $writer.WriteLine($message)
-    Write-Host "send data:$message"
-
-    $response = $reader.ReadLine()
-    Write-Host "recived data:$response"
-
-    $writer.Close()
-    $reader.Close()
-    $client.Close()
-    $response
+    # Write-Output $url
+    # $response = Invoke-RestMethod -Uri $url -Method Post # -Body $body -Headers $headers # -ErrorAction Stop
+    # Write-Host $response
+    try {
+        $response = Invoke-RestMethod -Uri $url -Method Post -Body $body -Headers $headers -ErrorAction Stop
+        Write-Host $response.success
+        Write-Host $response
+    }
+    catch {
+        Write-Output "request failed $_"
+    }
 }
 
 function Get-activationStatus {
